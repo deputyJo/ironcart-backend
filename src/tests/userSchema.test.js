@@ -7,9 +7,9 @@ let mongoServer;
 
 describe("userSchema tests", () => {
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         mongoServer = await MongoMemoryServer.create();
-        await mongoose.connect(mongoServer.getUri()), { dbName: "testdb" };
+        await mongoose.connect(mongoServer.getUri(), { dbName: "testdb" });
     });
 
     afterEach(async () => {
@@ -22,14 +22,7 @@ describe("userSchema tests", () => {
     });
 
 
-
     test("User should be saved", async () => {
-        //        required: [true, 'input required'],
-        // unique: true,
-        //     match: [/^[a-zA-Z0-9\s]+$/, 'No special characters allowed'],
-        //     maxlength: 12,
-        //     minlength: 6
-
 
         const user = new User({
             username: "testusername",
@@ -44,6 +37,28 @@ describe("userSchema tests", () => {
         expect(foundUser).not.toBeNull();
         expect(foundUser.username).toBe("testusername");
         expect(foundUser.email).toBe("test@email.com");
+
     });
+
+    test("Password should be hashed", async () => {
+
+        const user = new User({
+            username: "testusername",
+            password: "Xy@8kL92",
+            email: "test@email.com"
+        });
+
+        const password = user.password;
+
+        await user.save();
+
+        const foundUser = await User.findOne({ email: "test@email.com" }).select("+password");
+
+        expect(user.password).not.toBe(password);
+        await expect(bcrypt.compare(password, foundUser.password)).resolves.toBe(true);
+
+
+    });
+
 
 });
