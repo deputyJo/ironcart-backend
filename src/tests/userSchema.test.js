@@ -60,5 +60,22 @@ describe("userSchema tests", () => {
 
     });
 
+    test("Passwords should be unhashed - testing comparePassword function", async () => {
+
+        const user = new User({
+            username: "testusername",
+            password: "Xy@8kL92",
+            email: "test@email.com"
+        });
+
+        const password = user.password;
+
+        await user.save();
+
+        const foundUser = await User.findOne({ email: "test@email.com" }).select("+password");
+
+        await expect(foundUser.comparePassword(password)).resolves.toBe(true);
+    });
+
 
 });

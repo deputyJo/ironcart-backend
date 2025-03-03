@@ -56,6 +56,6 @@ UserSchema.methods.comparePassword = async function (enteredPassword) {
 };
 
 const User = mongoose.model("User", UserSchema);
-logger.info("User model initialized successfully");
+// logger.info("User model initialized successfully");
 
 module.exports = User;
