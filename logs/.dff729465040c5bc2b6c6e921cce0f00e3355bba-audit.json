@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "D:\\FullStackPractice\\ironcart-backend\\logs\\.dff729465040c5bc2b6c6e921cce0f00e3355bba-audit.json",
+    "files": [
+        {
+            "date": 1741375412218,
+            "name": "D:\\FullStackPractice\\ironcart-backend\\logs\\debug-2025-03-07.log",
+            "hash": "c9f330e33a310ecfc2b935816a2338aa93ac4686b26b77625ac24e30f0838c2d"
+        }
+    ],
+    "hashType": "sha256"
+}

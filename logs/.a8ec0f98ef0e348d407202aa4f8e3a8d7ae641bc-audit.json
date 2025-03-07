@@ -1,0 +1,25 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "D:\\FullStackPractice\\node-big-project\\logs\\.a8ec0f98ef0e348d407202aa4f8e3a8d7ae641bc-audit.json",
+    "files": [
+        {
+            "date": 1740336173254,
+            "name": "D:\\FullStackPractice\\node-big-project\\logs\\debug-2025-02-23.log",
+            "hash": "4b470cea114b9d89e5f84d65eb20e82a364316956237a0997b63939c0712ecf3"
+        },
+        {
+            "date": 1740574774530,
+            "name": "D:\\FullStackPractice\\node-big-project\\logs\\debug-2025-02-26.log",
+            "hash": "ef2f592a5560723b298c4260e23f3f6eaa42dd0a7be1ef99853f8422382a09d6"
+        },
+        {
+            "date": 1741374424768,
+            "name": "D:\\FullStackPractice\\node-big-project\\logs\\debug-2025-03-07.log",
+            "hash": "ab732d5fa9f4901a4abaa03f2d53776c9b386b1793bede041cce5c30fbe9e6bf"
+        }
+    ],
+    "hashType": "sha256"
+}
