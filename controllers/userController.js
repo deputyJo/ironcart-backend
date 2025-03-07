@@ -1,4 +1,4 @@
-const User = require("../models/userSchema");
+const { User } = require("../models/userSchema");
 const { sanitize } = require("../utils/sanitize");
 const { authLogin } = require("../controllers/authController");
 const logger = require('../utils/logger');
@@ -118,34 +118,44 @@ const registerUser = async (req, res) => {
 
 //  Login a user
 const loginUser = async (req, res) => {
-
     try {
+        console.log("🔥 Full Request Body:", req.body);
         let { username, password, email } = req.body;
 
-        username = sanitize(username, "username");
-        email = sanitize(email, "email");
-        password = sanitize(password, "password");
+        console.log("🔥 Extracted Email:", email);
+
+        if (!email) {
+            logger.warn("⚠️ Login error: Email is missing from request.");
+            return res.status(400).json({ error: "Email is required." });
+        }
+
+        username = sanitize("username", username);
+        email = sanitize("email", email);
+        password = sanitize("password", password);
+
+        console.log("🔥 Sanitized Email (before DB query):", email);
+
+        // 🚨 Log if email is still undefined before querying the database
+        if (!email) {
+            console.error("❌ Email became undefined before querying the database!");
+            return res.status(400).json({ error: "Email is required (unexpected behavior)." });
+        }
 
         const user = await User.findOne({ email });
 
+        console.log("🔥 Searching for user with email:", email);
+        console.log("🔥 User found in DB:", user);
 
         if (!user) {
-
-            logger.warn(`Can't log in user: ${email}. User is invalid`);
-
-            throw new Error("Invalid input");
+            logger.warn(`❌ Can't log in user: ${email}. User is invalid`);
+            return res.status(400).json({ error: "Invalid email or password" });
         }
 
-
-
         await authLogin(req, res);
-    }
-
-    catch (error) {
+    } catch (error) {
         return res.status(500).json({ error: "500 Internal Server Error" });
     }
-
-}
+};
 
 
 module.exports = { registerUser, loginUser };
