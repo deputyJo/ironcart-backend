@@ -90,7 +90,7 @@ function validateUser(user) {
                 "string.max": "Password cannot exceed 68 characters",
                 "any.required": "Password is required"
             }),
-    })
+    }).unknown();
     return schema.validate(user)
 }
 
