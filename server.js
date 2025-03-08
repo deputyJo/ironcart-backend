@@ -1,5 +1,6 @@
 const dotenv = require('dotenv');
 dotenv.config();
+const cors = require('cors');
 
 const config = require('./config.json');
 
@@ -13,6 +14,15 @@ const userRoutes = require("./routes/userRoutes");
 const logger = require('./utils/logger');
 
 
+const corsOptions = {
+    origin: 'http://localhost:3000', // // Replace with your frontend domain
+    methods: 'GET,POST', // Allow only these methods, add PUT and DELETE as needed
+    allowedHeaders: ['Content-Type', 'Authorization'],// Allow only these headers
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+
+
+
 //Estabilish MongoDB connection
 mongoose.connect(process.env.MONGO_URL)
     .then(() => {
@@ -24,7 +34,7 @@ mongoose.connect(process.env.MONGO_URL)
 
 
 //Middleware
-
+app.use(cors(corsOptions)); // Enable CORS for all origins, CORS must be applied before the routes
 app.use("/auth", userRoutes);
 
 
