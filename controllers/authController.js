@@ -11,15 +11,12 @@ const authLogin = async (req, res) => {
         let { email, password } = req.body;
         email = sanitize("email", email);
 
-        // 🚀 Fix: Explicitly select password
         const user = await User.findOne({ email }).select("+password");
 
         if (!user) {
             logger.warn(`User not found. Can't authenticate.`);
             throw new Error("User not found");
         }
-
-        console.log("🔥 Retrieved user from DB:", user); // Debugging
 
         const isMatch = await bcrypt.compare(password, user.password);
 

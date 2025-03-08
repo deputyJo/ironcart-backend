@@ -4,7 +4,6 @@ const logger = require('../utils/logger');
 // Sanitize input 
 function sanitize(type, target) {
     try {
-        console.log(`🔥 Inside sanitize() - Type: ${type}, Target:`, target); // Debug log
 
         if (typeof target !== "string") {
             logger.warn(`Sanitization warning: Received invalid ${type}: ${target}`);
