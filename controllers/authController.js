@@ -36,7 +36,7 @@ const authLogin = async (req, res) => {
         res.status(200).json({ message: `Token generated! User: ${user.username} logged in!`, token });
 
     } catch (error) {
-        console.error("🔥 Auth Login Error:", error.message);
+        console.error(" Auth Login Error:", error.message);
         res.status(500).json({ error: "Internal server error" });
     }
 };

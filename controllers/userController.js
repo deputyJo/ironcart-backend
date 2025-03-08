@@ -71,9 +71,7 @@ const registerUser = async (req, res) => {
         || !email || typeof email != "string") {
 
         logger.warn(`Invalid input: ${user.email}`);
-        return res.status(400).json({ error: "Invalid input." }
-
-        );
+        return res.status(400).json({ error: "Invalid input." });
     }
 
     else if (!validateInputLengthMax(password) || !validateInputLengthMax(username)) {
@@ -148,6 +146,7 @@ const loginUser = async (req, res) => {
         }
 
         await authLogin(req, res);
+
     } catch (error) {
         return res.status(500).json({ error: "500 Internal Server Error" });
     }
