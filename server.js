@@ -2,6 +2,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 const cors = require('cors');
 const helmet = require('helmet');
+const rateLimit = require("express-rate-limit");
 
 const config = require('./config.json');
 
@@ -14,6 +15,7 @@ const mongoose = require('mongoose');
 const userRoutes = require("./routes/userRoutes");
 const logger = require('./utils/logger');
 
+app.use(helmet());
 
 const corsOptions = {
     origin: 'http://localhost:3000', // // Replace with your frontend domain
@@ -22,7 +24,23 @@ const corsOptions = {
     optionsSuccessStatus: 200 // ensures those old browsers don't break when sending CORS requests.
 };
 
+app.use(cors(corsOptions)); // Enable CORS for the frontend only (localhost:3000)
 
+//Login requests
+const limiterLogin = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes   Without it, rate limits wouldn’t reset
+    max: 5, //max login requests
+    message: "Too many login requests, please try again later.",
+    headers: true //Include rate limit info in reponse headers
+});
+
+//Register requests
+const limiterRegister = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour   Without it, rate limits wouldn’t reset
+    max: 3, //max registration requests
+    message: "Too many accounts created, please try again later.",
+    headers: true //Include rate limit info in reponse headers
+});
 
 //Estabilish MongoDB connection
 mongoose.connect(process.env.MONGO_URL)
@@ -34,9 +52,9 @@ mongoose.connect(process.env.MONGO_URL)
 
 
 
-//Middleware
-app.use(helmet());
-app.use(cors(corsOptions)); // Enable CORS for all origins, CORS must be applied before the routes
+//Routes
+app.use("/auth/login", limiterLogin);
+app.use("/auth/register", limiterRegister);
 app.use("/auth", userRoutes);
 
 
