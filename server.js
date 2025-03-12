@@ -12,16 +12,18 @@ const app = express();
 app.use(express.json());
 const mongoose = require('mongoose');
 
+const rateLimit = require('express-rate-limit');
+
 const userRoutes = require("./routes/userRoutes");
 const logger = require('./utils/logger');
 
 app.use(helmet());
 
 const corsOptions = {
-    origin: 'http://localhost:3000', // // Replace with your frontend domain
+    origin: 'http://localhost:3000', // // Allows only local host:3000 connection
     methods: 'GET,POST', // Allow only these methods, add PUT and DELETE as needed
     allowedHeaders: ['Content-Type', 'Authorization'],// Allow only these headers
-    optionsSuccessStatus: 200 // ensures those old browsers don't break when sending CORS requests.
+    optionsSuccessStatus: 200 // Ensures those old browsers don't break when sending CORS requests.
 };
 
 app.use(cors(corsOptions)); // Enable CORS for the frontend only (localhost:3000)
@@ -42,6 +44,8 @@ const limiterRegister = rateLimit({
     headers: true //Include rate limit info in reponse headers
 });
 
+
+
 //Estabilish MongoDB connection
 mongoose.connect(process.env.MONGO_URL)
     .then(() => {
@@ -56,6 +60,7 @@ mongoose.connect(process.env.MONGO_URL)
 app.use("/auth/login", limiterLogin);
 app.use("/auth/register", limiterRegister);
 app.use("/auth", userRoutes);
+
 
 
 module.exports = app;
