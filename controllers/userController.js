@@ -5,6 +5,8 @@ const logger = require('../utils/logger');
 const { generateToken } = require('../utils/generateToken');
 const { error } = require("winston");
 const { verifyRecaptcha } = require("../utils/recaptcha");
+const crypto = require("crypto");
+const { sendEmail } = require("../utils/email");
 
 function validateInputLengthMax(username) {
     try {
@@ -45,77 +47,59 @@ function validateInputLengthMin(username) {
 
 //  Register a new user
 const registerUser = async (req, res) => {
+    const { username, email, password, recaptchaToken } = req.body;
 
-    const { username, password, email, recaptchaToken } = req.body;
-
-    //  Verify reCAPTCHA token
+    // Verify reCAPTCHA token
     const recaptchaResult = await verifyRecaptcha(recaptchaToken);
     if (!recaptchaResult.success || recaptchaResult.score < 0.5) {
         return res.status(400).json({ error: "reCAPTCHA verification failed. Possible bot activity detected." });
     }
 
-    //Check if the user already exists
+    // Check if user already exists
     let user = await User.findOne({ email });
-
     if (user) {
-        logger.warn(`User already exisits: ${user.email}`);
-        return res.status(400).json({ 'error': 'User already exists. Please sign in' });
+        logger.warn(`User already exists: ${user.email}`);
+        return res.status(400).json({ error: "User already exists. Please sign in." });
     }
 
-
-
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString("hex");
 
     user = new User({
         username: sanitize("username", username),
+        email: sanitize("email", email),
         password: sanitize("password", password),
-        email: sanitize("email", email)
+        verified: false, // User is NOT verified until they click the email
+        verificationToken,
     });
 
-    //  Reject invalid inputs
-    if (!username || typeof username != "string"
-        || !password || typeof password != "string"
-        || !email || typeof email != "string") {
-
-        logger.warn(`Invalid input: ${user.email}`);
-        return res.status(400).json({ error: "Invalid input." });
+    // Validate input lengths
+    if (!validateInputLengthMax(password) || !validateInputLengthMax(username)) {
+        logger.warn("Invalid input length.");
+        return res.status(400).json({ error: "Invalid input: length must be between 6-12 characters." });
     }
-
-    else if (!validateInputLengthMax(password) || !validateInputLengthMax(username)) {
-        logger.warn(`Invalid input: min length is 1 and max length is 12.`);
-        return res.status(400).json({ error: "Invalid input: invalid input length." });
-    }
-
-
     if (!validateInputLengthMin(email)) {
-        logger.warn(`Invalid input: min length is 6 and max length is 50.`);
-        return res.status(400).json({ error: "Invalid input: invalid input length." });
+        logger.warn("Invalid email length.");
+        return res.status(400).json({ error: "Invalid input: email length must be between 6-50 characters." });
     }
 
-
     try {
-
         await user.save();
-    }
 
-    catch (error) {
+        // Send verification email
+        const verificationLink = `http://localhost:3000/auth/verify/${verificationToken}`;
+        const emailHtml = `<p>Click the link below to verify your email:</p>
+                           <a href="${verificationLink}">${verificationLink}</a>`;
 
-        logger.error(`Failure generating a user: ${email}`);
-        return res.status(500).json({ error: "Failure generating a user." });
-    }
+        await sendEmail(email, "Verify Your Email", emailHtml);
 
-
-    try {
-        const token = generateToken({ _id: user._id });
-        logger.info(`User successfully registered: ${username}`);
-
-
-        return res.status(201).json({ username, email, token });
-
+        return res.status(201).json({ message: "User registered! Please check your email for verification." });
     } catch (error) {
-        logger.error(`Token generation failed for user: ${username}`);
-        return res.status(500).json({ username, email });
+        logger.error(`Error saving user: ${error.message}`);
+        return res.status(500).json({ error: "Internal Server Error. Failed to register user." });
     }
 };
+
 
 
 
@@ -124,7 +108,7 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
 
-        let { username, password, email, recaptchaToken } = req.body;
+        let { username, email, password, recaptchaToken } = req.body;
 
         // Verify reCAPTCHA token
         const recaptchaResult = await verifyRecaptcha(recaptchaToken);
@@ -163,8 +147,32 @@ const loginUser = async (req, res) => {
     }
 };
 
+const verifyEmail = async (req, res) => {
+    const { token } = req.params;
 
-module.exports = { registerUser, loginUser };
+    console.log(`🔍 Received token: ${token}`);
+
+    const user = await User.findOne({ verificationToken: token });
+
+    if (!user) {
+        console.log("❌ Token not found in database.");
+        return res.status(400).json({ error: "Invalid or expired token." });
+    }
+
+    // ✅ Instead of user.save(), use updateOne() to avoid password validation
+    await User.updateOne({ _id: user._id }, {
+        verified: true,
+        verificationToken: null
+    });
+
+    console.log(`✅ Email verified for: ${user.email}`);
+
+    res.status(200).json({ message: "Email successfully verified! You can now log in." });
+};
+
+
+
+module.exports = { registerUser, loginUser, verifyEmail };
 
 
 if (process.env.NODE_ENV === "test") {

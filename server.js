@@ -76,8 +76,8 @@ mongoose.connect(process.env.MONGO_URL)
 
 
 //Routes
-app.use("/auth/login", limiterLogin);
-app.use("/auth/register", limiterRegister);
+// app.use("/auth/login", limiterLogin);
+// app.use("/auth/register", limiterRegister);
 app.use("/auth", userRoutes);
 
 

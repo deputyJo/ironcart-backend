@@ -17,11 +17,10 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'input required'],
-        match: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$/,
-            'Password must be 8-12 characters and include at least one uppercase letter, one lowercase letter, one number, and one special character'],
-        maxlength: 68,   // Increase max length for security
-        minlength: 8,    //Minimum 8 Characters (Prevents weak passwords)
-        select: false // Do not return password in queries by default -  Use select: false for passwords so they don't leak in API responses
+        match: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$/],
+        maxlength: 68,
+        minlength: 8,
+        select: false
     },
     email: {
         type: String,
@@ -30,10 +29,17 @@ const UserSchema = new mongoose.Schema({
         index: true,
         trim: true,
         lowercase: true,
-        match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-            'Invalid email format: requires exactly one @ and a valid domain']
+        match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/]
+    },
+    verified: {
+        type: Boolean,
+        default: false  // ✅ NEW: Users are not verified by default
+    },
+    verificationToken: {
+        type: String,
+        default: null  // ✅ NEW: Store email verification token
     }
-}, { timestamps: true });   //timestamps: true (Automatically records createdAt and updatedAt)
+}, { timestamps: true });
 
 UserSchema.pre("save", async function (next) {
     try {
@@ -43,7 +49,6 @@ UserSchema.pre("save", async function (next) {
             return next(new Error(error.details[0].message)); // Stop save if validation fails
         }
 
-        // Only hash the password if it’s modified
         if (!this.isModified("password") || !this.password) {
             return next();
         }
@@ -56,7 +61,7 @@ UserSchema.pre("save", async function (next) {
     }
 });
 
-
+// ✅ Joi Validation Function (Kept & Updated)
 function validateUser(user) {
     const schema = Joi.object({
         username: Joi.string()
@@ -90,16 +95,17 @@ function validateUser(user) {
                 "string.max": "Password cannot exceed 68 characters",
                 "any.required": "Password is required"
             }),
+        verified: Joi.boolean().default(false),  // ✅ New field in Joi validation
+        verificationToken: Joi.string().allow(null) // ✅ Allow null if user is verified
     }).unknown();
-    return schema.validate(user)
-}
 
+    return schema.validate(user);
+}
 
 // Password Verification 
 UserSchema.methods.comparePassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
-
 
 const User = mongoose.model("User", UserSchema);
 logger.info("User model initialized successfully");
