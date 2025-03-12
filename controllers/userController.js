@@ -120,7 +120,7 @@ const loginUser = async (req, res) => {
 
         let { username, password, email } = req.body;
 
-
+        console.log(username);
 
         if (!email) {
             logger.warn(" Login error: Email is missing from request.");

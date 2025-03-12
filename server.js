@@ -30,6 +30,9 @@ const corsOptions = {
     optionsSuccessStatus: 200 // Ensures those old browsers don't break when sending CORS requests.
 };
 
+const xssClean = require("xss-clean");
+app.use(xssClean());
+
 app.use(cors(corsOptions)); // Enable CORS for the frontend only (localhost:3000)
 
 //Login requests
