@@ -16,7 +16,19 @@ const mongoose = require('mongoose');
 const userRoutes = require("./routes/userRoutes");
 const logger = require('./utils/logger');
 
-app.use(helmet());
+app.use(helmet({
+    //CSP - prevents malicious scripts from running by restricting which sources can load scripts, styles and images
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"], // Only allow scripts from your own domain
+            scriptSrc: ["'self'", "https://trusted-cdn.com"], // Allow specific external scripts
+            styleSrc: ["'self'", "'unsafe-inline'"], // Allow styles from same origin
+            imgSrc: ["'self'", "data:", "https://trusted-images.com"], // Allow images from trusted sources
+            objectSrc: ["'none'"], // Prevent embedding objects (Flash, etc.)
+            upgradeInsecureRequests: [], // Upgrade HTTP requests to HTTPS
+        },
+    },
+}));
 
 const mongoSanitize = require('express-mongo-sanitize');
 
