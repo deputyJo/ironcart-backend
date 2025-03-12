@@ -12,7 +12,6 @@ const app = express();
 app.use(express.json());
 const mongoose = require('mongoose');
 
-const rateLimit = require('express-rate-limit');
 
 const userRoutes = require("./routes/userRoutes");
 const logger = require('./utils/logger');
