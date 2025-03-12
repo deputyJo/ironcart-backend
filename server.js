@@ -18,6 +18,11 @@ const logger = require('./utils/logger');
 
 app.use(helmet());
 
+const mongoSanitize = require('express-mongo-sanitize');
+
+//Protect agains NoSQL injection attacks
+app.use(mongoSanitize({ replaceWith: "_" }));
+
 const corsOptions = {
     origin: 'http://localhost:3000', // // Allows only local host:3000 connection
     methods: 'GET,POST', // Allow only these methods, add PUT and DELETE as needed
