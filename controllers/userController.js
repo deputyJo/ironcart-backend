@@ -4,7 +4,7 @@ const { authLogin } = require("../controllers/authController");
 const logger = require('../utils/logger');
 const { generateToken } = require('../utils/generateToken');
 const { error } = require("winston");
-
+const { verifyRecaptcha } = require("../utils/recaptcha");
 
 function validateInputLengthMax(username) {
     try {
@@ -46,7 +46,13 @@ function validateInputLengthMin(username) {
 //  Register a new user
 const registerUser = async (req, res) => {
 
-    const { username, password, email } = req.body;
+    const { username, password, email, recaptchaToken } = req.body;
+
+    //  Verify reCAPTCHA token
+    const recaptchaResult = await verifyRecaptcha(recaptchaToken);
+    if (!recaptchaResult.success || recaptchaResult.score < 0.5) {
+        return res.status(400).json({ error: "reCAPTCHA verification failed. Possible bot activity detected." });
+    }
 
     //Check if the user already exists
     let user = await User.findOne({ email });
@@ -118,8 +124,13 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
 
-        let { username, password, email } = req.body;
+        let { username, password, email, recaptchaToken } = req.body;
 
+        // Verify reCAPTCHA token
+        const recaptchaResult = await verifyRecaptcha(recaptchaToken);
+        if (!recaptchaResult.success || recaptchaResult.score < 0.5) {
+            return res.status(400).json({ error: "reCAPTCHA verification failed. Possible bot activity detected." });
+        }
         console.log(username);
 
         if (!email) {
