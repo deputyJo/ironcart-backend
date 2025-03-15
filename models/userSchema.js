@@ -32,8 +32,20 @@ const UserSchema = new mongoose.Schema({
         lowercase: true,
         match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
             'Invalid email format: requires exactly one @ and a valid domain']
+    },
+    verificationToken: {
+        type: String,
+        default: null   // Verified users don't need a verification token
+    },
+    verified: {
+        type: Boolean,
+        required: true,
+        default: false
     }
-}, { timestamps: true });   //timestamps: true (Automatically records createdAt and updatedAt)
+}, { timestamps: true });
+
+// Auto-delete unverified users after 24 hours
+UserSchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400, partialFilterExpression: { verified: false } });
 
 UserSchema.pre("save", async function (next) {
     try {

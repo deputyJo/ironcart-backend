@@ -5,6 +5,8 @@ const logger = require('../utils/logger');
 const { generateToken } = require('../utils/generateToken');
 const { error } = require("winston");
 const { verifyRecaptcha } = require("../utils/recaptcha");
+const crypto = require("crypto");
+const { sendEmail } = require("../utils/email");
 
 function validateInputLengthMax(username) {
     try {
@@ -45,77 +47,66 @@ function validateInputLengthMin(username) {
 
 //  Register a new user
 const registerUser = async (req, res) => {
-
     const { username, password, email, recaptchaToken } = req.body;
 
-    //  Verify reCAPTCHA token
+    // Verify reCAPTCHA token
     const recaptchaResult = await verifyRecaptcha(recaptchaToken);
     if (!recaptchaResult.success || recaptchaResult.score < 0.5) {
         return res.status(400).json({ error: "reCAPTCHA verification failed. Possible bot activity detected." });
     }
 
-    //Check if the user already exists
+    // Check if user already exists
     let user = await User.findOne({ email });
-
     if (user) {
-        logger.warn(`User already exisits: ${user.email}`);
-        return res.status(400).json({ 'error': 'User already exists. Please sign in' });
+        logger.warn(`User already exists: ${user.email}`);
+        return res.status(400).json({ error: "User already exists. Please sign in." });
     }
 
-
-
+    // Generate a verification token
+    const verificationToken = crypto.randomBytes(32).toString("hex");
 
     user = new User({
         username: sanitize("username", username),
         password: sanitize("password", password),
-        email: sanitize("email", email)
+        email: sanitize("email", email),
+        verificationToken,
+        verified: false
     });
 
-    //  Reject invalid inputs
-    if (!username || typeof username != "string"
-        || !password || typeof password != "string"
-        || !email || typeof email != "string") {
-
-        logger.warn(`Invalid input: ${user.email}`);
+    // Reject invalid inputs
+    if (!username || typeof username !== "string" || !password || typeof password !== "string" || !email || typeof email !== "string") {
+        logger.warn(`Invalid input: ${email}`);
         return res.status(400).json({ error: "Invalid input." });
     }
 
-    else if (!validateInputLengthMax(password) || !validateInputLengthMax(username)) {
-        logger.warn(`Invalid input: min length is 1 and max length is 12.`);
+    if (!validateInputLengthMax(password) || !validateInputLengthMax(username)) {
+        logger.warn("Invalid input: min length is 1 and max length is 12.");
         return res.status(400).json({ error: "Invalid input: invalid input length." });
     }
-
 
     if (!validateInputLengthMin(email)) {
-        logger.warn(`Invalid input: min length is 6 and max length is 50.`);
+        logger.warn("Invalid input: min length is 6 and max length is 50.");
         return res.status(400).json({ error: "Invalid input: invalid input length." });
     }
 
-
     try {
-
         await user.save();
-    }
 
-    catch (error) {
+        // Create email verification link
+        const verificationLink = `http://localhost:3000/auth/verify/${verificationToken}`;
+        const emailHtml = `<p>Click the link below to verify your email:</p>
+                           <a href="${verificationLink}">${verificationLink}</a>`; //URL should be visible for the user 
 
+        // Send verification email
+        await sendEmail(email, "Verify your email", emailHtml);
+
+        return res.status(201).json({ message: "User registered! Please check your email for verification." });
+    } catch (error) {
         logger.error(`Failure generating a user: ${email}`);
         return res.status(500).json({ error: "Failure generating a user." });
     }
-
-
-    try {
-        const token = generateToken({ _id: user._id });
-        logger.info(`User successfully registered: ${username}`);
-
-
-        return res.status(201).json({ username, email, token });
-
-    } catch (error) {
-        logger.error(`Token generation failed for user: ${username}`);
-        return res.status(500).json({ username, email });
-    }
 };
+
 
 
 
@@ -163,8 +154,39 @@ const loginUser = async (req, res) => {
     }
 };
 
+const verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.params; //Get the token from the URL
 
-module.exports = { registerUser, loginUser };
+        const user = await User.findOne({ verificationToken: token }).select("+password"); //Check if a user exidts with this token
+
+        if (!user) {
+            logger.warn(`Token not found in databasae: ${token}`);
+            return res.status(400).json({ error: "Invalid or expired token." });
+        }
+
+        // //Mark user as verified
+        // user.verified = true;
+        // user.verificationToken = null; //Remove token after verification
+        // await user.save({ validateBeforeSave: false }); //Ignore password valiation
+
+        await User.updateOne(
+            { _id: user._id },
+            { $set: { verified: true, verificationToken: null } }
+        );
+
+
+        logger.info(`✅ Email verified for: ${user.email}`);
+        return res.status(200).json({ message: "Email successfully verified! You can now log in." });
+    } catch (error) {
+        logger.error(`Error during email verification: ${error.message}`);
+        return res.status(500).json({ error: "Internal Server Error." });
+    }
+};
+
+
+
+module.exports = { registerUser, loginUser, verifyEmail };
 
 
 if (process.env.NODE_ENV === "test") {
