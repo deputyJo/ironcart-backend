@@ -117,16 +117,18 @@ const loginUser = async (req, res) => {
 
         let { username, password, email, recaptchaToken } = req.body;
 
+
         // Verify reCAPTCHA token
         const recaptchaResult = await verifyRecaptcha(recaptchaToken);
         if (!recaptchaResult.success || recaptchaResult.score < 0.5) {
             return res.status(400).json({ error: "reCAPTCHA verification failed. Possible bot activity detected." });
         }
-        console.log(username);
 
-        if (!email) {
-            logger.warn(" Login error: Email is missing from request.");
-            return res.status(400).json({ error: "Email is required." });
+
+        // Check if email & password exist
+        if (!email || !password) {
+            logger.warn("Login error: Email or password is missing.");
+            return res.status(400).json({ error: "Email and password are required." });
         }
 
         username = sanitize("username", username);
@@ -139,7 +141,7 @@ const loginUser = async (req, res) => {
             return res.status(400).json({ error: "Email is required (unexpected behavior)." });
         }
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email }).select("+password");
 
 
         if (!user) {
@@ -147,7 +149,23 @@ const loginUser = async (req, res) => {
             return res.status(400).json({ error: "Invalid email or password" });
         }
 
-        await authLogin(req, res);
+        //  Block login if user is NOT verified
+        if (!user.verified) {
+            return res.status(403).json({ error: "Please verify your email before logging in." });
+        }
+
+        // Check if the provided password matches the stored hashed password
+        const isPasswordValid = await user.comparePassword(password);
+        if (!isPasswordValid) {
+            logger.warn(`Login failed: Incorrect password for ${email}`);
+            return res.status(400).json({ error: "Invalid email or password" });
+        }
+
+        // Generate JWT token for the user
+        const token = generateToken({ _id: user._id });
+
+        logger.info(`User logged in successfully: ${user.email}`);
+        return res.status(200).json({ message: "Login successful!", token });
 
     } catch (error) {
         return res.status(500).json({ error: "500 Internal Server Error" });
@@ -165,14 +183,10 @@ const verifyEmail = async (req, res) => {
             return res.status(400).json({ error: "Invalid or expired token." });
         }
 
-        // //Mark user as verified
-        // user.verified = true;
-        // user.verificationToken = null; //Remove token after verification
-        // await user.save({ validateBeforeSave: false }); //Ignore password valiation
-
+        // use updateOne() insted of save() to prevent password requirement
         await User.updateOne(
-            { _id: user._id },
-            { $set: { verified: true, verificationToken: null } }
+            { _id: user._id },  //  Find the user by their unique ID
+            { $set: { verified: true, verificationToken: null } }   //   Update these fields
         );
 
 
