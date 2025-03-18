@@ -1,14 +1,15 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const logger = require('../utils/logger');
+const AppError = require("../utils/AppError");
 
 const generateToken = (user) => {
 
     try {
 
-        if (Object.keys(user).length === 0 || !user || !user._id) {
-            logger.error(`Error generating a JWT token! Error: ${error}`);
-            throw new Error("Token generation error");
+        if (typeof user !== "object" || !user || !user._id) {
+            logger.error(`Error generating a JWT token!`);
+            throw new AppError("Token generation error", 400);
         }
 
         return jwt.sign(
@@ -23,7 +24,7 @@ const generateToken = (user) => {
     catch (error) {
         console.log("Token generation failed!");
         logger.error(`Error generating a JWT token! Error: ${error}`);
-        throw new Error("Token generation error");
+        throw new AppError("Token generation error", 500);
     }
 
 };

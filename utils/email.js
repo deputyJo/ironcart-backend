@@ -1,5 +1,6 @@
 const nodemailer = require("nodemailer");
 const logger = require("../utils/logger");
+const AppError = require("../utils/AppError");
 
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
@@ -24,7 +25,7 @@ const sendEmail = async (to, subject, html) => {
     }
     catch (error) {
         logger.error(`Error sending email to ${to}: ${error.message}`);
-        throw new Error("Email failed to send.");
+        throw new AppError("Something went wrong, email generation failure.", 500)
     }
 };
 

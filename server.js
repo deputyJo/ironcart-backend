@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const rateLimit = require("express-rate-limit");
 
 const config = require('./config.json');
-
+const errorHandler = require("./utils/errorHandler");
 
 const express = require('express');
 const app = express();
@@ -79,7 +79,7 @@ mongoose.connect(process.env.MONGO_URL)
 app.use("/auth/login", limiterLogin);
 app.use("/auth/register", limiterRegister);
 app.use("/auth", userRoutes);
-
+app.use(errorHandler);
 
 
 module.exports = app;

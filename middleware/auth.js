@@ -1,25 +1,31 @@
-//Protects the routes - for restricted access websites
-
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const logger = require('../utils/logger');
+const AppError = require("../utils/AppError");
 
 const authMiddleware = (req, res, next) => {
-    const token = req.header('Authorization');
-
-    if (!token) {
-        logger.warn(`Access denied. No token provided. User: ${req.email}`);
-        return res.status(401).json({ error: "Access denied. No token provided." })
-    };
-
     try {
+        const token = req.header('Authorization');
+
+        if (!token) {
+            logger.warn("Access denied. No token provided.");
+            throw new AppError("Access denied. No token provided.", 401);
+        }
+
+        // Verify the token
         const verified = jwt.verify(token.replace("Bearer ", ""), process.env.JWT_SECRET_KEY);
         req.user = verified;
-        logger.info(`User successfully verified: ${req.email}`);
+
+        logger.info(`User successfully verified: ${verified._id}`);
         next();
+
     } catch (error) {
-        logger.error(`JWT authentication error! User: ${req.email} Error: ${error}`);
-        res.status(403).json({ error: "Invalid or expired token." });
+        if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") {
+            logger.error(`JWT authentication error: ${error.message}`);
+            next(new AppError("Invalid or expired token.", 403));
+        } else {
+            next(error instanceof AppError ? error : new AppError("Something went wrong, user token authentication error.", 500));
+        }
     }
 };
 

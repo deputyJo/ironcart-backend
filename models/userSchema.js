@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const logger = require('../utils/logger');
 const Joi = require('joi');
+const AppError = require("../utils/AppError");
 
 const UserSchema = new mongoose.Schema({
     username: {
@@ -9,7 +10,6 @@ const UserSchema = new mongoose.Schema({
         required: [true, 'input required'],
         unique: true,
         lowercase: true,
-        match: [/^[a-zA-Z0-9\s]+$/, 'No special characters allowed'],
         index: true,
         maxlength: 12,
         minlength: 6
@@ -17,11 +17,9 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'input required'],
-        match: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$/,
-            'Password must be 8-12 characters and include at least one uppercase letter, one lowercase letter, one number, and one special character'],
-        maxlength: 68,   // Increase max length for security
-        minlength: 8,    //Minimum 8 Characters (Prevents weak passwords)
-        select: false // Do not return password in queries by default -  Use select: false for passwords so they don't leak in API responses
+        maxlength: 68,
+        minlength: 8,
+        select: false
     },
     email: {
         type: String,
@@ -30,8 +28,7 @@ const UserSchema = new mongoose.Schema({
         index: true,
         trim: true,
         lowercase: true,
-        match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-            'Invalid email format: requires exactly one @ and a valid domain']
+        match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Invalid email format: requires exactly one @ and a valid domain']
     },
     verificationToken: {
         type: String,
@@ -42,7 +39,16 @@ const UserSchema = new mongoose.Schema({
         required: true,
         default: false
     }
-}, { timestamps: true });
+}, {
+    timestamps: true,
+    toJSON: {
+        // Prevents accidental data leaks
+        transform: function (doc, ret) {
+            delete ret.password;    // Always removes password from JSON responses
+            return ret;
+        }
+    }
+});
 
 // Auto-delete unverified users after 24 hours
 UserSchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400, partialFilterExpression: { verified: false } });
@@ -52,11 +58,12 @@ UserSchema.pre("save", async function (next) {
         // Run Joi validation first
         const { error } = validateUser(this.toObject());
         if (error) {
-            return next(new Error(error.details[0].message)); // Stop save if validation fails
+            logger.warn(`User validation failed: ${error.details[0].message}`);
+            throw new AppError(error.details[0].message, 400);
         }
 
         // Only hash the password if it’s modified
-        if (!this.isModified("password") || !this.password) {
+        if (!this.isModified("password")) {
             return next();
         }
 
@@ -64,15 +71,14 @@ UserSchema.pre("save", async function (next) {
         this.password = await bcrypt.hash(this.password, salt);
         next();
     } catch (error) {
-        next(error);
+        next(error instanceof AppError ? error : new AppError("Something went wrong, user generation failure.", 500));
     }
 });
-
 
 function validateUser(user) {
     const schema = Joi.object({
         username: Joi.string()
-            .pattern(/^[a-zA-Z0-9\s]+$/)
+            .pattern(/^[a-zA-Z0-9\s]+$/)    // 'No special characters allowed'
             .min(6)
             .max(12)
             .required()
@@ -92,6 +98,7 @@ function validateUser(user) {
                 "any.required": "Email is required"
             }),
         password: Joi.string()
+            // 'Password must be 8-12 characters and include at least one uppercase letter, one lowercase letter, one number, and one special character'],
             .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$/)
             .min(8)
             .max(68)
@@ -103,15 +110,16 @@ function validateUser(user) {
                 "any.required": "Password is required"
             }),
     }).unknown();
-    return schema.validate(user)
+    return schema.validate(user);
 }
-
 
 // Password Verification 
 UserSchema.methods.comparePassword = async function (enteredPassword) {
+    if (!enteredPassword || !this.password) {
+        return false; // Return false instead of crashing
+    }
     return await bcrypt.compare(enteredPassword, this.password);
 };
-
 
 const User = mongoose.model("User", UserSchema);
 logger.info("User model initialized successfully");

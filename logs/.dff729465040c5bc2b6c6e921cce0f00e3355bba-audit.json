@@ -29,6 +29,11 @@
             "date": 1742003137388,
             "name": "D:\\FullStackPractice\\ironcart-backend\\logs\\debug-2025-03-15.log",
             "hash": "610069909cdd29e1d3098f15baaad0b1edd7253020817b3ca542a895de3070b2"
+        },
+        {
+            "date": 1742297563625,
+            "name": "D:\\FullStackPractice\\ironcart-backend\\logs\\debug-2025-03-18.log",
+            "hash": "da9dbf3665e60b54a7fd894a614e21a303e1695a88b2e6cf5c54f9e65ddc9bfb"
         }
     ],
     "hashType": "sha256"
