@@ -12,17 +12,24 @@ const generateToken = (user) => {
             throw new AppError("Token generation error", 400);
         }
 
-        return jwt.sign(
+        const accessToken = jwt.sign(
 
-            { id: user._id },
+            { _id: user._id },
             process.env.JWT_SECRET_KEY,
             { expiresIn: '1h' } // Token expires in 1 hour
 
         );
+
+        const refreshToken = jwt.sign(
+            { _id: user._id },
+            process.env.JWT_REFRESH_SECRET,
+            { expiresIn: "7d" } // 7 days long lifespan
+        );
+
+        return { accessToken, refreshToken, expiresIn: 3600 };
     }
 
     catch (error) {
-        console.log("Token generation failed!");
         logger.error(`Error generating a JWT token! Error: ${error}`);
         throw new AppError("Token generation error", 500);
     }

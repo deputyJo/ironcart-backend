@@ -38,6 +38,11 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
         default: false
+    },
+
+    refreshToken: {
+        type: String,
+        default: null // No token initally
     }
 }, {
     timestamps: true,
@@ -69,6 +74,12 @@ UserSchema.pre("save", async function (next) {
 
         const salt = await bcrypt.genSalt(10);
         this.password = await bcrypt.hash(this.password, salt);
+
+        // Hash refresh token if modified
+        if (this.isModified("refreshToken") && this.refreshToken) {
+            this.refreshToken = await bcrypt.hash(this.refreshToken, 10);
+
+        }
         next();
     } catch (error) {
         next(error instanceof AppError ? error : new AppError("Something went wrong, user generation failure.", 500));
@@ -114,11 +125,11 @@ function validateUser(user) {
 }
 
 // Password Verification 
-UserSchema.methods.comparePassword = async function (enteredPassword) {
-    if (!enteredPassword || !this.password) {
+UserSchema.methods.compareHashedValue = async function (enteredValue, storedHash) {
+    if (!enteredValue || !storedHash) {
         return false; // Return false instead of crashing
     }
-    return await bcrypt.compare(enteredPassword, this.password);
+    return await bcrypt.compare(enteredValue, storedHash);
 };
 
 const User = mongoose.model("User", UserSchema);

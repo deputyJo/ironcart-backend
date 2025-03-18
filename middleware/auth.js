@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const logger = require('../utils/logger');
 const AppError = require("../utils/AppError");
+const User = require("../models/userSchema");
 
 const authMiddleware = (req, res, next) => {
     try {
@@ -28,5 +29,9 @@ const authMiddleware = (req, res, next) => {
         }
     }
 };
+
+
+
+
 
 module.exports = authMiddleware;

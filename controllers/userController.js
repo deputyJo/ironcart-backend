@@ -157,10 +157,14 @@ const loginUser = async (req, res, next) => {
         }
 
         // Generate JWT token for the user
-        const token = generateToken({ _id: user._id });
+        const { accessToken, refreshToken } = generateToken({ _id: user._id });
+
+        // Save refresh token in DB
+        user.refreshToken = refreshToken;
+        await user.save();
 
         logger.info(`User logged in successfully: ${user.email}`);
-        return res.status(200).json({ message: "Login successful!", token });
+        return res.status(200).json({ message: "Login successful!", accessToken, refreshToken });
 
     } catch (error) {
         next(error instanceof AppError ? error : new AppError("Something went wrong, please try again later.", 500));

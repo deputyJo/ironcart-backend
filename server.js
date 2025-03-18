@@ -3,6 +3,8 @@ dotenv.config();
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require("express-rate-limit");
+const authRoutes = require("./routes/authRoutes"); // Import authentication routes
+
 
 const config = require('./config'); // Import config.js
 const errorHandler = require("./utils/errorHandler");
@@ -79,6 +81,8 @@ mongoose.connect(process.env.MONGO_URL)
 app.use("/auth/login", limiterLogin);
 app.use("/auth/register", limiterRegister);
 app.use("/auth", userRoutes);
+app.use("/users", userRoutes);
+app.use("/auth", authRoutes);
 app.use(errorHandler);
 
 
