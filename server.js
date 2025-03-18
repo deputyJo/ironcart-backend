@@ -4,7 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require("express-rate-limit");
 
-const config = require('./config.json');
+const config = require('./config'); // Import config.js
 const errorHandler = require("./utils/errorHandler");
 
 const express = require('express');
@@ -87,7 +87,7 @@ module.exports = app;
 
 // Only start the server if not in a test environment
 if (process.env.NODE_ENV !== 'test') {
-    app.listen(config.app.port, () => {
-        logger.info(`Running on port ${config.app.port}`);
+    app.listen(config.port, () => {
+        logger.info(`Running on port ${config.port}`);
     });
 }
