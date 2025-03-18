@@ -6,7 +6,7 @@ const { authLogin, refreshTokenHandler } = require("../controllers/authControlle
 
 const router = express.Router();
 
-router.post("/refresh", generateToken); // Refresh token route
+router.post("/refresh", refreshTokenHandler); // Refresh token route
 router.get("/verify/:token", verifyEmail); // Verificaction route
 
 module.exports = router;

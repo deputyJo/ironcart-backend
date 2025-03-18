@@ -42,7 +42,7 @@ const UserSchema = new mongoose.Schema({
 
     refreshToken: {
         type: String,
-        default: null // No token initally
+        default: ""     // Prevents possible type-related bugs when comparing refresh tokens.
     }
 }, {
     timestamps: true,
@@ -126,8 +126,8 @@ function validateUser(user) {
 
 // Password Verification 
 UserSchema.methods.compareHashedValue = async function (enteredValue, storedHash) {
-    if (!enteredValue || !storedHash) {
-        return false; // Return false instead of crashing
+    if (!enteredValue || !storedHash || typeof storedHash !== "string") {
+        return false; // Prevent errors
     }
     return await bcrypt.compare(enteredValue, storedHash);
 };

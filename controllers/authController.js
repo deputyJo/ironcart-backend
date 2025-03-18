@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { User } = require("../models/userSchema");
+const User = require("../models/userSchema");
 const { generateToken } = require("../utils/generateToken");
 const { sanitize } = require("../utils/sanitize");
 const logger = require("../utils/logger");
