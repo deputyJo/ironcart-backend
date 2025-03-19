@@ -48,7 +48,6 @@ const authLogin = async (req, res, next) => {
             maxAge: 7 * 24 * 60 * 60 * 1000 // Cookie expiration date - 7 days
         });
 
-
         logger.info(`User authenticated and logged in. Email: ${email}`);
         res.status(200).json({ message: `Token generated! User: ${user.username} logged in!`, accessToken: accessToken });
 
@@ -61,5 +60,63 @@ const authLogin = async (req, res, next) => {
 };
 
 
+// const refreshTokenHandler = async (req, res, next) => {
+//     try {
+//         const refreshToken = req.cookies.refreshToken; // Get token from cookies
 
-module.exports = { authLogin };
+//         if (!refreshToken) {
+//             return res.status(403).json({ message: "Refresh token required" });
+//         }
+
+//         jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, decoded) => {
+//             if (err) {
+//                 return res.status(403).json({ message: "Invalid or expired refresh token" });
+//             }
+
+//             const newAccessToken = generateToken(decoded); // Generate new access token
+
+//             res.status(200).json({ accessToken: newAccessToken });
+//         });
+
+//     } catch (error) {
+//         next(error);
+//     }
+// };
+const refreshTokenHandler = async (req, res, next) => {
+    try {
+        const refreshToken = req.cookies.refreshToken; // Get token from cookies
+
+        if (!refreshToken) {
+            return res.status(403).json({ message: "Refresh token required" });
+        }
+
+        jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, decoded) => {
+            if (err) {
+                return res.status(403).json({ message: "Invalid or expired refresh token" });
+            }
+
+            console.log("Decoded Refresh Token:", decoded); // 🔹 Log decoded payload for debugging
+
+            // 🔹 Fix: Use `id` instead of `_id`
+            const newAccessToken = generateToken({ _id: decoded.id });
+
+            res.status(200).json({ accessToken: newAccessToken });
+        });
+
+    } catch (error) {
+        console.error("Refresh Token Error:", error);
+        next(error);
+    }
+};
+
+
+
+
+const logoutUser = (req, res) => {
+    res.clearCookie("refreshToken", { httpOnly: true, secure: false, sameSite: "Strict" });
+    res.json({ message: "Logged out successfully" });
+};
+
+
+
+module.exports = { authLogin, refreshTokenHandler, logoutUser };

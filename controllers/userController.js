@@ -84,7 +84,7 @@ const registerUser = async (req, res, next) => {
         await user.save();
 
         // Create email verification link
-        const verificationLink = `http://localhost:3000/auth/verify/${verificationToken}`;
+        const verificationLink = `http://localhost:3000/users/verify/${verificationToken}`;
         const emailHtml = `<p>Click the link below to verify your email:</p>
                            <a href="${verificationLink}">${verificationLink}</a>`; //URL should be visible for the user
 
