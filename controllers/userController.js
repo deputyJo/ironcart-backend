@@ -156,11 +156,13 @@ const loginUser = async (req, res, next) => {
             throw new AppError("Invalid email or password", 400);
         }
 
-        // Generate JWT token for the user
-        const token = generateToken({ _id: user._id });
+        // // Generate JWT token for the user
+        // const token = generateToken({ _id: user._id });
 
         logger.info(`User logged in successfully: ${user.email}`);
-        return res.status(200).json({ message: "Login successful!", token });
+        // return res.status(200).json({ message: "Login successful!", token });
+        // ✅ User is authenticated → Call `authLogin` to handle tokens
+        return authLogin(user, res, next);
 
     } catch (error) {
         next(error instanceof AppError ? error : new AppError("Something went wrong, please try again later.", 500));
