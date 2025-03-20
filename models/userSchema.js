@@ -30,6 +30,11 @@ const UserSchema = new mongoose.Schema({
         lowercase: true,
         match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Invalid email format: requires exactly one @ and a valid domain']
     },
+    role: {
+        type: String,
+        enum: ["admin", "seller", "customer"],
+        default: "customer"
+    },
     verificationToken: {
         type: String,
         default: null   // Verified users don't need a verification token
