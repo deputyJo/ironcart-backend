@@ -1,5 +1,6 @@
 const express = require("express");
 const { authLogin, refreshTokenHandler, logoutUser } = require("../controllers/authController");
+const { loginUser } = require("../controllers/userController");
 const rateLimit = require("express-rate-limit");
 
 const router = express.Router();
@@ -11,7 +12,7 @@ const limiterLogin = rateLimit({
     message: "Too many login attempts, please try again later."
 });
 
-router.post("/login", limiterLogin, authLogin);
+router.post("/login", limiterLogin, loginUser);
 router.post("/refresh", refreshTokenHandler); //  Route to refresh token (make sure it's implemented)
 router.post("/logout", logoutUser); //  Route to log out the user (we'll implement this next)
 

@@ -22,6 +22,10 @@ const authLogin = async (req, res, next) => {
 
         const isMatch = await bcrypt.compare(password, user.password);
 
+        console.log("🔑 [LOGIN] Password entered:", password);
+        console.log("🔒 [LOGIN] Stored hashed password:", user.password);
+        console.log("✅ [LOGIN] Password match result:", isMatch);
+
         if (!isMatch) {
             logger.warn("bcrypt error - password mismatch");
             throw new AppError("Incorrect password", 400);

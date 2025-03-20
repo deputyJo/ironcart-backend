@@ -67,8 +67,10 @@ UserSchema.pre("save", async function (next) {
             return next();
         }
 
+        console.log("🚀 [REGISTRATION] Password before hashing:", this.password);
         const salt = await bcrypt.genSalt(10);
         this.password = await bcrypt.hash(this.password, salt);
+        console.log("✅ [REGISTRATION] Password after hashing:", this.password);
         next();
     } catch (error) {
         next(error instanceof AppError ? error : new AppError("Something went wrong, user generation failure.", 500));
