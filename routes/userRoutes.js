@@ -5,6 +5,7 @@ const rateLimit = require("express-rate-limit");
 const rbac = require("../middleware/rbac");
 const verifyToken = require("../middleware/auth");
 const { User } = require("../models/userSchema");
+const { validateRegister } = require("../middleware/validator");
 
 const router = express.Router();
 
@@ -17,7 +18,7 @@ const limiterRegister = rateLimit({
 });
 
 // Define the register route
-router.post("/register", limiterRegister, registerUser);
+router.post("/register", limiterRegister, validateRegister, registerUser);
 // router.post("/login", loginUser);
 router.get("/verify/:token", verifyEmail); // Verificaction route
 

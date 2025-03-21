@@ -39,11 +39,18 @@ const registerUser = async (req, res, next) => {
     try {
         const { username, password, email, recaptchaToken } = req.body;
 
-        // Verify reCAPTCHA token
-        const recaptchaResult = await verifyRecaptcha(recaptchaToken);
-        if (!recaptchaResult.success || recaptchaResult.score < 0.5) {
-            throw new AppError("reCAPTCHA verification failed. Possible bot activity detected.", 400);
+        console.log("about to verify reCAPTCHA");
+
+        // Skip reCAPTCHA check in development
+        if (process.env.NODE_ENV !== "development") {
+            const recaptchaResult = await verifyRecaptcha(recaptchaToken);
+            if (!recaptchaResult.success || recaptchaResult.score < 0.5) {
+                throw new AppError("reCAPTCHA verification failed. Possible bot activity detected.", 400);
+            }
+        } else {
+            console.log(" Skipping reCAPTCHA verification in development mode.");
         }
+
 
         // Check if user already exists
         let user = await User.findOne({ email });
