@@ -149,7 +149,7 @@ const loginUser = async (req, res, next) => {
             throw new AppError("Invalid email or password", 400);
         }
 
-        //  Block login if user is NOT verified
+        //  Block login if user is not verified
         if (!user.verified) {
             logger.warn(` Can't log in user: ${email}. User is not verified!`);
             throw new AppError("Please verify your email before logging in.", 403);
@@ -163,12 +163,10 @@ const loginUser = async (req, res, next) => {
             throw new AppError("Invalid email or password", 400);
         }
 
-        // // Generate JWT token for the user
-        // const token = generateToken({ _id: user._id });
+
 
         logger.info(`User logged in successfully: ${user.email}`);
-        // return res.status(200).json({ message: "Login successful!", token });
-        // ✅ User is authenticated → Call `authLogin` to handle tokens
+
         return authLogin(user, res, next);
 
     } catch (error) {

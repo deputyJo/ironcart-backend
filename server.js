@@ -49,22 +49,6 @@ app.use(xssClean());
 
 app.use(cors(corsOptions)); // Enable CORS for the frontend only (localhost:3000)
 
-// //Login requests
-// const limiterLogin = rateLimit({
-//     windowMs: 15 * 60 * 1000, // 15 minutes   Without it, rate limits wouldn’t reset
-//     max: 5, //max login requests
-//     message: "Too many login requests, please try again later.",
-//     headers: true //Include rate limit info in reponse headers
-// });
-
-// //Register requests
-// const limiterRegister = rateLimit({
-//     windowMs: 60 * 60 * 1000, // 1 hour   Without it, rate limits wouldn’t reset
-//     max: 3, //max registration requests
-//     message: "Too many accounts created, please try again later.",
-//     headers: true //Include rate limit info in reponse headers
-// });
-
 
 
 //Estabilish MongoDB connection
@@ -77,11 +61,6 @@ mongoose.connect(process.env.MONGO_URL)
 
 
 
-//Routes
-// app.use("/auth/login", limiterLogin);
-// app.use("/auth/register", limiterRegister);
-// app.use("/auth", userRoutes);
-// app.use(errorHandler);
 app.use("/auth", authRoutes); // Authentication (login, refresh, logout)
 app.use("/users", userRoutes); // User management (registration, email verification)
 app.use(errorHandler);

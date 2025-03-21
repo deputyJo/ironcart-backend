@@ -10,26 +10,6 @@ const jwt = require("jsonwebtoken");
 
 const authLogin = async (user, res, next) => {
     try {
-        // let { email, password } = req.body;
-        // email = sanitize("email", email);
-
-        // const user = await User.findOne({ email }).select("+password");
-
-        // if (!user || !user.password) {
-        //     logger.warn(`User not found. Can't authenticate.`);
-        //     throw new AppError("User not found", 400);
-        // }
-
-        // const isMatch = await bcrypt.compare(password, user.password);
-
-        // console.log("🔑 [LOGIN] Password entered:", password);
-        // console.log("🔒 [LOGIN] Stored hashed password:", user.password);
-        // console.log("✅ [LOGIN] Password match result:", isMatch);
-
-        // if (!isMatch) {
-        //     logger.warn("bcrypt error - password mismatch");
-        //     throw new AppError("Incorrect password", 400);
-        // }
 
         const accessToken = generateToken(user);
         const refreshToken = generateRefreshToken(user);
@@ -64,28 +44,7 @@ const authLogin = async (user, res, next) => {
 };
 
 
-// const refreshTokenHandler = async (req, res, next) => {
-//     try {
-//         const refreshToken = req.cookies.refreshToken; // Get token from cookies
 
-//         if (!refreshToken) {
-//             return res.status(403).json({ message: "Refresh token required" });
-//         }
-
-//         jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, decoded) => {
-//             if (err) {
-//                 return res.status(403).json({ message: "Invalid or expired refresh token" });
-//             }
-
-//             const newAccessToken = generateToken(decoded); // Generate new access token
-
-//             res.status(200).json({ accessToken: newAccessToken });
-//         });
-
-//     } catch (error) {
-//         next(error);
-//     }
-// };
 const refreshTokenHandler = async (req, res, next) => {
     try {
         const refreshToken = req.cookies.refreshToken; // Get token from cookies
@@ -99,9 +58,9 @@ const refreshTokenHandler = async (req, res, next) => {
                 return res.status(403).json({ message: "Invalid or expired refresh token" });
             }
 
-            console.log("Decoded Refresh Token:", decoded); // 🔹 Log decoded payload for debugging
+            console.log("Decoded Refresh Token:", decoded); //  Log decoded payload for debugging
 
-            // 🔹 Fix: Use `id` instead of `_id`
+
             const newAccessToken = generateToken({ _id: decoded.id });
 
             res.status(200).json({ accessToken: newAccessToken });
