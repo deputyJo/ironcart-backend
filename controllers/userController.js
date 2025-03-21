@@ -9,29 +9,6 @@ const crypto = require("crypto");
 const { sendEmail } = require("../utils/email");
 const AppError = require("../utils/AppError");
 
-function validateInputLengthMax(username) {
-
-    if (typeof username === "string"
-        && username
-        && username.length > 0) {
-        return username.length <= 12; // Max length 12
-    }
-
-    logger.warn(`Invalid input: ${username}`);
-    return false;
-}
-
-function validateInputLengthMin(username) {
-
-    if (typeof username === "string"
-        && username) {
-        return username.length >= 6 && username.length <= 50; // Min length 6, max length 50
-    }
-
-    logger.warn(`Invalid input: ${username}`);
-    return false;
-
-}
 
 
 //  Register a new user
@@ -71,21 +48,6 @@ const registerUser = async (req, res, next) => {
             verified: false
         });
 
-        // Reject invalid inputs
-        if (!username || typeof username !== "string" || !password || typeof password !== "string" || !email || typeof email !== "string") {
-            logger.warn(`Invalid input: ${email}`);
-            throw new AppError("Invalid input.", 400);
-        }
-
-        if (!validateInputLengthMax(password) || !validateInputLengthMax(username)) {
-            logger.warn("Invalid input: min length is 1 and max length is 12.");
-            throw new AppError("Invalid input: invalid input length.", 400);
-        }
-
-        if (!validateInputLengthMin(email)) {
-            logger.warn("Invalid input: min length is 6 and max length is 50.");
-            throw new AppError("Invalid input: invalid input length.", 400);
-        }
 
 
         await user.save();
@@ -118,36 +80,28 @@ const loginUser = async (req, res, next) => {
         let { username, password, email, recaptchaToken } = req.body;
 
 
-        // Verify reCAPTCHA token
-        const recaptchaResult = await verifyRecaptcha(recaptchaToken);
-        if (!recaptchaResult.success || recaptchaResult.score < 0.5) {
-            throw new AppError("reCAPTCHA verification failed. Possible bot activity detected.", 400);
+
+        if (process.env.NODE_ENV !== "development") {
+            const recaptchaResult = await verifyRecaptcha(recaptchaToken);
+            if (!recaptchaResult.success || recaptchaResult.score < 0.5) {
+                throw new AppError("reCAPTCHA verification failed. Possible bot activity detected.", 400);
+            }
+        } else {
+            console.log("Skipping reCAPTCHA verification in development mode.");
         }
 
-
-        // Check if email & password exist
-        if (!email || !password) {
-            logger.warn("Login error: Email or password is missing.");
-            throw new AppError("Email and password are required.", 400);
-        }
 
         username = sanitize("username", username);
         email = sanitize("email", email);
         password = sanitize("password", password);
 
 
-        if (!email) {
-            console.error(" Email became undefined before querying the database!");
-            throw new AppError("Email is required (unexpected behavior).", 400);
-        }
+
 
         const user = await User.findOne({ email }).select("+password");
 
 
-        if (!user) {
-            logger.warn(` Can't log in user: ${email}. User is invalid`);
-            throw new AppError("Invalid email or password", 400);
-        }
+
 
         //  Block login if user is not verified
         if (!user.verified) {
@@ -182,7 +136,7 @@ const verifyEmail = async (req, res, next) => {
         const user = await User.findOne({ verificationToken: token }).select("+password"); //Check if a user exidts with this token
 
         if (!user) {
-            logger.warn(`Token not found in databasae: ${token}`);
+            logger.warn(`Token not found in database: ${token}`);
             throw new AppError("Invalid or expired token.", 400);
         }
 
@@ -206,7 +160,3 @@ const verifyEmail = async (req, res, next) => {
 module.exports = { registerUser, loginUser, verifyEmail };
 
 
-if (process.env.NODE_ENV === "test") {
-    module.exports.validateInputLengthMax = validateInputLengthMax;
-    module.exports.validateInputLengthMin = validateInputLengthMin;
-}
