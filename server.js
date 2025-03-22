@@ -63,6 +63,9 @@ mongoose.connect(process.env.MONGO_URL)
 
 app.use("/auth", authRoutes); // Authentication (login, refresh, logout)
 app.use("/users", userRoutes); // User management (registration, email verification)
+
+const productRoutes = require("./routes/productRoutes");
+app.use("/products", productRoutes);
 app.use(errorHandler);
 
 

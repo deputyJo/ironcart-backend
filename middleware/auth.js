@@ -14,7 +14,11 @@ const authMiddleware = (req, res, next) => {
 
         // Verify the token
         const verified = jwt.verify(token.replace("Bearer ", ""), process.env.JWT_SECRET_KEY);
-        req.user = verified;
+
+        req.user = {
+            _id: verified.id,  // remap `id` back to `_id` for internal consistency
+            role: verified.role
+        };
 
         logger.info(`User successfully verified: ${verified._id}`);
         next();
