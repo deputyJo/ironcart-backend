@@ -42,9 +42,26 @@ const getAllProducts = async (req, res, next) => {
 };
 
 
+// Get product by ID
+const getProductById = async (req, res, next) => {
+    try {
+        const product = await Product.findById(req.params.id).populate("seller", "email username");
+
+        if (!product) {
+            return next(new AppError("Product not found", 404));
+        }
+
+        res.status(200).json(product);
+    } catch (error) {
+        logger.error(`Failed to get product: ${error.message}`);
+        next(new AppError("Failed to retrieve product", 500));
+    }
+};
+
 
 
 module.exports = {
     createProduct,
-    getAllProducts
+    getAllProducts,
+    getProductById
 };
