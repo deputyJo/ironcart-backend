@@ -66,6 +66,9 @@ app.use("/users", userRoutes); // User management (registration, email verificat
 
 const productRoutes = require("./routes/productRoutes");
 app.use("/products", productRoutes);
+
+app.use("/cart", require("./routes/cartRoutes"));
+
 app.use(errorHandler);
 
 
