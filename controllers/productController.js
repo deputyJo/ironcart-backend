@@ -31,6 +31,20 @@ const createProduct = async (req, res, next) => {
     }
 };
 
+const getAllProducts = async (req, res, next) => {
+    try {
+        const products = await Product.find().populate("seller", "username email");
+        res.status(200).json(products);
+    } catch (error) {
+        logger.error("❌ Failed to fetch products:", error);
+        next(new AppError("Server error. Could not retrieve products.", 500));
+    }
+};
+
+
+
+
 module.exports = {
-    createProduct
+    createProduct,
+    getAllProducts
 };
