@@ -69,6 +69,8 @@ app.use("/products", productRoutes);
 
 app.use("/cart", require("./routes/cartRoutes"));
 
+app.use("/orders", require("./routes/orderRoutes"));
+
 app.use(errorHandler);
 
 
