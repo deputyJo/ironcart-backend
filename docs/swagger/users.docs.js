@@ -2,45 +2,42 @@
  * @swagger
  * components:
  *   schemas:
- *     User:
+ *     RegisterRequest:
  *       type: object
  *       required:
  *         - username
- *         - password
  *         - email
- *         - verified
+ *         - password
  *       properties:
  *         username:
  *           type: string
- *           description: Username
  *           example: testUsername
- *         password:
- *           type: string
- *           description: User password
- *           example: Abcde1!@34
+ *           description: User's chosen display name
  *         email:
  *           type: string
- *           description: User email
+ *           format: email
  *           example: user@example.com
- *         role:
+ *         password:
  *           type: string
- *           description: User role
- *           example: seller
- *         verificationToken:
+ *           format: password
+ *           example: Abcde1!@34
+ *         recaptchaToken:
  *           type: string
- *           description: Email verification token
- *           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
- *         verified:
- *           type: boolean
- *           description: Whether the user has verified their email
- *           example: true
-
+ *           example: 03AGdBq25B7kOe8...
+ *           description: Required only in production
+ *
+ *     LogoutResponse:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           example: Logged out successfully
+ *
  *     ErrorResponse:
  *       type: object
  *       properties:
  *         message:
  *           type: string
- *           description: Error message
  *           example: Something went wrong
  */
 
@@ -53,7 +50,7 @@
 
 /**
  * @swagger
- * /users:
+ * /users/register:
  *   post:
  *     summary: Register a user
  *     tags: [Users]
@@ -62,7 +59,21 @@
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/User'
+ *             $ref: '#/components/schemas/RegisterRequest'
+ *           examples:
+ *             Development:
+ *               summary: Register (Development)
+ *               value:
+ *                 username: joanna
+ *                 email: joanna@example.com
+ *                 password: Abcde1!@34
+ *             Production:
+ *               summary: Register (Production)
+ *               value:
+ *                 username: joanna
+ *                 email: joanna@example.com
+ *                 password: Abcde1!@34
+ *                 recaptchaToken: 03AGdBq25B7kOe8...
  *     responses:
  *       201:
  *         description: User registered successfully
@@ -201,7 +212,7 @@
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/User'
+ *                 $ref: '#/components/schemas/RegisterRequest'
  *       401:
  *         description: Access denied. No token provided.
  *         content:

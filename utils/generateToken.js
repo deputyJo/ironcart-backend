@@ -14,7 +14,7 @@ const generateToken = (user) => {
 
         return jwt.sign(
 
-            { id: user._id, role: user.role },
+            { id: user._id, email: user.email, role: user.role },
             process.env.JWT_SECRET_KEY,
             { expiresIn: '15m' } // Token expires in 15 minutes
 
@@ -39,7 +39,7 @@ const generateRefreshToken = (user) => {
         }
 
         return jwt.sign(
-            { id: user._id, role: user.role },
+            { id: user._id, email: user.email, role: user.role },
             process.env.JWT_REFRESH_SECRET,
             { expiresIn: "7d" }); // Long lifespan
 

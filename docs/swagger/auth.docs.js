@@ -8,16 +8,19 @@
  *         - email
  *         - password
  *       properties:
+ *         username:
+ *           type: string
+ *           description: Required in development (optional in production)
  *         email:
  *           type: string
  *           format: email
- *           example: user@example.com
+ *           description: Required in all environments
  *         password:
  *           type: string
- *           example: Abcde1!@34
+ *           description: Required in all environments
  *         recaptchaToken:
  *           type: string
- *           example: 03AGdBq25B7kOe8...
+ *           description: Required only in production
  *
  *     LoginResponse:
  *       type: object
@@ -28,34 +31,13 @@
  *         accessToken:
  *           type: string
  *           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
- *
- *     RefreshResponse:
- *       type: object
- *       properties:
- *         accessToken:
- *           type: string
- *           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
- *
- *     LogoutResponse:
- *       type: object
- *       properties:
- *         message:
- *           type: string
- *           example: Logged out successfully
- *
+
  *     ErrorResponse:
  *       type: object
  *       properties:
  *         message:
  *           type: string
  *           example: Something went wrong
- */
-
-/**
- * @swagger
- * tags:
- *   name: Auth
- *   description: Authentication routes
  */
 
 /**
@@ -70,6 +52,19 @@
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/LoginRequest'
+ *           examples:
+ *             Development:
+ *               summary: Login example in development environment
+ *               value:
+ *                 username: joanna
+ *                 email: joanna@example.com
+ *                 password: Abcde1!@34
+ *             Production:
+ *               summary: Login example in production environment
+ *               value:
+ *                 email: joanna@example.com
+ *                 password: Abcde1!@34
+ *                 recaptchaToken: 03AGdBq25B7kOe8...
  *     responses:
  *       200:
  *         description: Login successful, access token returned
@@ -78,7 +73,7 @@
  *             schema:
  *               $ref: '#/components/schemas/LoginResponse'
  *       400:
- *         description: Bad request (e.g. invalid credentials or reCAPTCHA failure)
+ *         description: Bad request (invalid credentials or reCAPTCHA failure)
  *         content:
  *           application/json:
  *             schema:
@@ -112,43 +107,6 @@
  *                   message: Something went wrong, please try again later.
  */
 
-/**
- * @swagger
- * /auth/refresh:
- *   post:
- *     summary: Refresh an access token using a refresh token (from cookie)
- *     tags: [Auth]
- *     responses:
- *       200:
- *         description: New access token generated
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/RefreshResponse'
- *       403:
- *         description: Missing or invalid refresh token
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             examples:
- *               MissingToken:
- *                 value:
- *                   message: Refresh token required
- *               InvalidToken:
- *                 value:
- *                   message: Invalid or expired refresh token
- *       500:
- *         description: Token refresh failure
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             examples:
- *               ServerError:
- *                 value:
- *                   message: Something went wrong. Could not refresh token.
- */
 
 /**
  * @swagger

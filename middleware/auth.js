@@ -17,10 +17,11 @@ const authMiddleware = (req, res, next) => {
 
         req.user = {
             _id: verified.id,  // remap `id` back to `_id` for internal consistency
-            role: verified.role
+            role: verified.role,
+            email: verified.email,
         };
 
-        logger.info(`User successfully verified: ${verified._id}`);
+        logger.info(`User successfully verified: id=${verified.id}, role=${verified.role}`);
         next();
 
     } catch (error) {
