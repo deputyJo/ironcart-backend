@@ -71,6 +71,11 @@ app.use("/cart", require("./routes/cartRoutes"));
 
 app.use("/orders", require("./routes/orderRoutes"));
 
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require('./utils/swagger');
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 app.use(errorHandler);
 
 
