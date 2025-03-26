@@ -8,10 +8,26 @@ const config = require('./config'); // Import config.js
 const errorHandler = require("./utils/errorHandler");
 const cookieParser = require("cookie-parser");
 
+const bodyParser = require("body-parser");
+
+
+
 const express = require('express');
 const app = express();
+
+app.use(
+    "/webhook",
+    bodyParser.raw({ type: "application/json" }),
+    require("./routes/webhookRoutes")
+);
+
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); //   Enables reading cookies in requests
+
+
+
 const mongoose = require('mongoose');
 
 const authRoutes = require("./routes/authRoutes"); //
@@ -70,6 +86,11 @@ app.use("/products", productRoutes);
 app.use("/cart", require("./routes/cartRoutes"));
 
 app.use("/orders", require("./routes/orderRoutes"));
+
+app.use("/payment", require("./routes/paymentRoutes"));
+
+
+
 
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require('./utils/swagger');

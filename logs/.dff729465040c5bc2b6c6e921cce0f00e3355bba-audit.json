@@ -6,16 +6,6 @@
     "auditLog": "D:\\FullStackPractice\\ironcart-backend\\logs\\.dff729465040c5bc2b6c6e921cce0f00e3355bba-audit.json",
     "files": [
         {
-            "date": 1741715647490,
-            "name": "D:\\FullStackPractice\\ironcart-backend\\logs\\debug-2025-03-11.log",
-            "hash": "1874fc1011f4b9a5b0ae95c03863f708c9b84545c273469cb272516b7145abd1"
-        },
-        {
-            "date": 1741779051575,
-            "name": "D:\\FullStackPractice\\ironcart-backend\\logs\\debug-2025-03-12.log",
-            "hash": "5b9368119ceafb96f9feb2fbde9a52aeeb24035e44e54094f07c8ab37d5a0635"
-        },
-        {
             "date": 1742003137388,
             "name": "D:\\FullStackPractice\\ironcart-backend\\logs\\debug-2025-03-15.log",
             "hash": "610069909cdd29e1d3098f15baaad0b1edd7253020817b3ca542a895de3070b2"
@@ -59,6 +49,11 @@
             "date": 1742914765625,
             "name": "D:\\FullStackPractice\\ironcart-backend\\logs\\debug-2025-03-25.log",
             "hash": "daa6c9887cc0cab1498bfb21e86b7fb49ef8cc118a8065c29008f53faa4f8edc"
+        },
+        {
+            "date": 1743017237241,
+            "name": "D:\\FullStackPractice\\ironcart-backend\\logs\\debug-2025-03-26.log",
+            "hash": "6573e7d8648644a00b97a4eee99fda79beb8458be18741a285d5886c622dcf57"
         }
     ],
     "hashType": "sha256"

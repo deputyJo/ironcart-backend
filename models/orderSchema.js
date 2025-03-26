@@ -33,7 +33,12 @@ const orderSchema = new mongoose.Schema({
     payment: {
         isPaid: { type: Boolean, default: false },
         paidAt: { type: Date },
-        method: { type: String, enum: ["FakeGateway"], default: "FakeGateway" }
+        method: {
+            type: String,
+            enum: ["Stripe Checkout", "PayPal", "FakeGateway"],
+            default: "Stripe Checkout"
+        },
+        transactionId: { type: String } // optional for trace/debug
     }
 }, { timestamps: true });
 

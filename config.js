@@ -2,7 +2,8 @@ require('dotenv').config(); // Load environment variables
 
 const config = {
     port: process.env.PORT || 3000,
-    dbUrl: process.env.NODE_ENV === 'production' ? process.env.PROD_DB_URL : process.env.DEV_DB_URL
+    dbUrl: process.env.NODE_ENV === 'production' ? process.env.PROD_DB_URL : process.env.DEV_DB_URL,
+    stripeSecret: process.env.STRIPE_SECRET_KEY
 };
 
 module.exports = config;
