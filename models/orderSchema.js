@@ -30,16 +30,24 @@ const orderSchema = new mongoose.Schema({
         enum: ["Pending", "Paid", "Shipped", "Delivered"],
         default: "Pending",
     },
+    // payment: {
+    //     isPaid: { type: Boolean, default: false },
+    //     paidAt: { type: Date },
+    //     method: {
+    //         type: String,
+    //         enum: ["Stripe Checkout", "PayPal", "FakeGateway"],
+    //         default: "Stripe Checkout"
+    //     },
+    //     transactionId: { type: String } // optional for trace/debug
+    // }
     payment: {
         isPaid: { type: Boolean, default: false },
         paidAt: { type: Date },
-        method: {
-            type: String,
-            enum: ["Stripe Checkout", "PayPal", "FakeGateway"],
-            default: "Stripe Checkout"
-        },
-        transactionId: { type: String } // optional for trace/debug
+        method: { type: String, enum: ["FakeGateway", "Stripe Checkout", "PayPal"], default: "FakeGateway" },
+        transactionId: { type: String },
+        payerEmail: { type: String }
     }
+
 }, { timestamps: true });
 
 module.exports = mongoose.model("Order", orderSchema);
