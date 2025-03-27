@@ -9,21 +9,48 @@
  *           type: string
  *           description: Stripe Checkout session URL
  *           example: https://checkout.stripe.com/c/pay/cs_test_abc123
-
+ *
  *     StripeWebhookResponse:
  *       type: object
  *       properties:
  *         received:
  *           type: boolean
  *           example: true
-
+ *
  *     ErrorResponse:
  *       type: object
  *       properties:
  *         message:
  *           type: string
  *           example: Something went wrong
+ *
+ *   responses:
+ *     BadRequest:
+ *       description: Invalid request or input
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ErrorResponse'
+ *
+ *     Unauthorized:
+ *       description: Missing or invalid token
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ErrorResponse'
+ *
+ *     ServerError:
+ *       description: Internal server error
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ErrorResponse'
  */
+
+
+
+
+
 
 /**
  * @swagger
@@ -98,4 +125,76 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+
+
+
+/**
+ * @swagger
+ * /payment/paypal-create-order:
+ *   post:
+ *     summary: Create PayPal order
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: PayPal order created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 approvalUrl:
+ *                   type: string
+ *                   example: https://www.sandbox.paypal.com/checkoutnow?token=8WM433302J7801916
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ */
+
+/**
+ * @swagger
+ * /payment/paypal-capture-order:
+ *   post:
+ *     summary: Capture PayPal order
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               orderId:
+ *                 type: string
+ *                 example: 8WM433302J7801916
+ *     responses:
+ *       200:
+ *         description: Payment captured and order updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Payment captured successfully
+ *                 paypalStatus:
+ *                   type: string
+ *                   example: COMPLETED
+ *                 paypalResponse:
+ *                   type: object
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
  */
