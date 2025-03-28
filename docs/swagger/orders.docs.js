@@ -143,34 +143,34 @@
  *                   message: Could not retrieve your orders
  */
 
-/**
- * @swagger
- * /orders:
- *   get:
- *     summary: Get all orders (admin/seller)
- *     tags: [Orders]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: All orders retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Order'
- *       500:
- *         description: Failed to retrieve orders
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             examples:
- *               ServerCrash:
- *                 value:
- *                   message: Could not retrieve orders
- */
+// /**
+//  * @swagger
+//  * /orders:
+//  *   get:
+//  *     summary: Get all orders (admin/seller)
+//  *     tags: [Orders]
+//  *     security:
+//  *       - bearerAuth: []
+//  *     responses:
+//  *       200:
+//  *         description: All orders retrieved successfully
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/Order'
+//  *       500:
+//  *         description: Failed to retrieve orders
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               $ref: '#/components/schemas/ErrorResponse'
+//  *             examples:
+//  *               ServerCrash:
+//  *                 value:
+//  *                   message: Could not retrieve orders
+//  */
 
 /**
  * @swagger

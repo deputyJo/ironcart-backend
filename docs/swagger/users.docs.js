@@ -196,51 +196,51 @@
  *                   message: Something went wrong, email could not be verified.
  */
 
-/**
- * @swagger
- * /users/all-users:
- *   get:
- *     summary: Retrieve all users (Admin only)
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Successfully retrieved all users
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/RegisterRequest'
- *       401:
- *         description: Access denied. No token provided.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             examples:
- *               Unauthorized:
- *                 value:
- *                   message: Access denied. No token provided.
- *       403:
- *         description: Invalid or insufficient permissions.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             examples:
- *               Forbidden:
- *                 value:
- *                   message: Access denied. Insufficient permissions.
- *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             examples:
- *               ServerCrash:
- *                 value:
- *                   message: Something went wrong, user token authentication error.
- */
+// /**
+//  * @swagger
+//  * /users/all-users:
+//  *   get:
+//  *     summary: Retrieve all users (Admin only)
+//  *     tags: [Users]
+//  *     security:
+//  *       - bearerAuth: []
+//  *     responses:
+//  *       200:
+//  *         description: Successfully retrieved all users
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: array
+//  *               items:
+//  *                 $ref: '#/components/schemas/RegisterRequest'
+//  *       401:
+//  *         description: Access denied. No token provided.
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               $ref: '#/components/schemas/ErrorResponse'
+//  *             examples:
+//  *               Unauthorized:
+//  *                 value:
+//  *                   message: Access denied. No token provided.
+//  *       403:
+//  *         description: Invalid or insufficient permissions.
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               $ref: '#/components/schemas/ErrorResponse'
+//  *             examples:
+//  *               Forbidden:
+//  *                 value:
+//  *                   message: Access denied. Insufficient permissions.
+//  *       500:
+//  *         description: Server error
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               $ref: '#/components/schemas/ErrorResponse'
+//  *             examples:
+//  *               ServerCrash:
+//  *                 value:
+//  *                   message: Something went wrong, user token authentication error.
+//  */
