@@ -118,6 +118,35 @@ const deleteProduct = async (req, res, next) => {
     }
 };
 
+const getMyProducts = async (req, res, next) => {
+    try {
+        const sellerId = req.user._id;
+
+        const products = await Product.find({ seller: sellerId, isPublished: true })
+            .populate("seller", "username email");
+
+        res.status(200).json(products);
+    } catch (error) {
+        logger.error("❌ Failed to fetch seller's products:", error);
+        next(new AppError("Could not retrieve your products", 500));
+    }
+};
+
+const getProductsBySeller = async (req, res, next) => {
+    try {
+        const sellerId = req.params.sellerId;
+        console.log("SELLER ID:", sellerId); // 👈 Add this to confirm
+
+        const products = await Product.find({ seller: sellerId, isPublished: true })
+            .populate("seller", "username");
+
+        res.status(200).json(products);
+    } catch (error) {
+        logger.error(`❌ Failed to fetch products for seller ${req.params.sellerId}:`, error);
+        next(new AppError("Could not retrieve products for this seller", 500));
+    }
+};
+
 
 
 module.exports = {
@@ -125,5 +154,7 @@ module.exports = {
     getAllProducts,
     getProductById,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getMyProducts,
+    getProductsBySeller
 };

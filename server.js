@@ -89,7 +89,7 @@ app.use("/orders", require("./routes/orderRoutes"));
 
 app.use("/payment", require("./routes/paymentRoutes"));
 
-
+app.use("/admin", require("./routes/adminRoutes"));
 
 
 const swaggerUi = require("swagger-ui-express");

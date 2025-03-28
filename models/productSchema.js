@@ -7,6 +7,10 @@ const productSchema = new mongoose.Schema({
     stock: { type: Number, default: 0, min: 0 },
     category: { type: String },
     seller: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    isPublished: {
+        type: Boolean,
+        default: true,
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model("Product", productSchema);

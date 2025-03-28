@@ -34,6 +34,11 @@
  *           type: string
  *           description: ID of the seller who created the product
  *           example: 6430c1c4e74c2b001e6ef2a1
+ *         isPublished:
+ *           type: boolean
+ *           description: Whether this product is publicly visible
+ *           example: true
+ *
  * 
  *     ErrorResponse:
  *       type: object
@@ -371,4 +376,86 @@
  *               ServerCrash:
  *                 value:
  *                   message: Failed to delete product
+ */
+
+
+/**
+ * @swagger
+ * /products/my-products:
+ *   get:
+ *     summary: Get products created by the currently logged-in seller
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved seller's products
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Product'
+ *       401:
+ *         description: Unauthorized – Token missing or invalid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       403:
+ *         description: Forbidden – User role not allowed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+
+
+/**
+ * @swagger
+ * /products/seller/{sellerId}:
+ *   get:
+ *     summary: Get published products from a specific seller
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: sellerId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the seller
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved products from seller
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Product'
+ *       400:
+ *         description: Invalid seller ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: No products found for this seller
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */

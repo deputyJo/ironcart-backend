@@ -17,8 +17,8 @@ router.post("/checkout", verifyToken, rbac(["customer"]), createOrder);
 // Get current user's orders (Customer only)
 router.get("/my-orders", verifyToken, rbac(["customer"]), getMyOrders);
 
-// Admin or seller can see all orders
-router.get("/", verifyToken, rbac(["admin", "seller"]), getAllOrders);
+// // Admin or seller can see all orders
+// router.get("/", verifyToken, rbac(["admin", "seller"]), getAllOrders);
 
 // Admin can update order status
 router.put("/:orderId/status", verifyToken, rbac(["admin"]), updateOrderStatus);

@@ -16,7 +16,7 @@ const generateToken = (user) => {
 
             { id: user._id, email: user.email, role: user.role },
             process.env.JWT_SECRET_KEY,
-            { expiresIn: '15m' } // Token expires in 15 minutes
+            { expiresIn: '1h' } // Token expires in 15 minutes
 
         );
 
